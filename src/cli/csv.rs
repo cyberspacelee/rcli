@@ -2,21 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use clap::Parser;
 
-#[derive(Debug, Parser)]
-#[command(name = "rcli", version, author, about, long_about = None)]
-pub struct Opts {
-    #[command(subcommand)]
-    pub cmd: SubCommand,
-}
-
-#[derive(Debug, Parser)]
-pub enum SubCommand {
-    #[command(name = "csv", about = "Convert CSV To Other Format")]
-    CSV(CsvOpts),
-
-    #[command(name = "genpass", about = "Generate a random password")]
-    GENPASS(GenPassOpts),
-}
+use super::verify_input_file;
 
 #[derive(Debug, Parser)]
 pub struct CsvOpts {
@@ -34,24 +20,6 @@ pub struct CsvOpts {
 
     #[arg(short, long, default_value_t = ',')]
     pub delimiter: char,
-}
-
-#[derive(Debug, Parser)]
-pub struct GenPassOpts {
-    #[arg(short, long, default_value_t = 16)]
-    pub length: u8,
-
-    #[arg(long, default_value_t = true)]
-    pub uppercase: bool,
-
-    #[arg(long, default_value_t = true)]
-    pub lowercase: bool,
-
-    #[arg(long, default_value_t = true)]
-    pub number: bool,
-
-    #[arg(long, default_value_t = true)]
-    pub symbol: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -88,13 +56,5 @@ impl FromStr for OutputFormat {
             "yaml" => Ok(OutputFormat::Yaml),
             _ => Err(anyhow::anyhow!("Invalid format")),
         }
-    }
-}
-
-fn verify_input_file(file_name: &str) -> Result<String, String> {
-    if std::path::Path::new(file_name).exists() {
-        Ok(file_name.to_string())
-    } else {
-        Err(format!("File not found: {}", file_name))
     }
 }
